@@ -1,0 +1,23 @@
+#Parameters for USboard
+#Device on which usboard is attached
+ComPort: /dev/ttyUSB0
+usboard_timeout_: 0.5
+requestRate: 25
+log: false
+
+sensor1_active: false
+sensor2_active: true
+sensor3_active: false
+sensor4_active: true
+sensor5_active: false
+sensor6_active: true
+sensor7_active: false
+sensor8_active: false
+sensor9_active: false
+sensor10_active: false
+sensor11_active: false
+sensor12_active: false
+sensor13_active: true
+sensor14_active: false
+sensor15_active: true
+sensor16_active: true
