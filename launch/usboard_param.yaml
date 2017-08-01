@@ -1,10 +1,22 @@
-#Parameters for USboard
-#Device on which usboard is attached
+################################################################
+################################################################
+#                                                              #
+#             .yaml for Neobotix USBoard                       #
+#                                                              #
+################################################################
+################################################################
+
+##########################
+#    device parameter    #
+##########################
 ComPort: /dev/ttyUSB0
 usboard_timeout_: 0.5
 requestRate: 25
 log: false
 
+##########################
+#        sensors         #
+##########################
 sensor1_active: false
 sensor2_active: true
 sensor3_active: false
