@@ -12,6 +12,12 @@ The USBoard is available as standalone unit and in all Neobotix mobile robots (h
 * Configuration of the Neobotix USBoard is done via an easy to use graphical user interface that is included in delivery. The user interface runs on any Java capable computer with an RS232 port and makes configuration and monitoring fast and convenient.
 * For more information please take a look at the datasheet: http://www.neobotix-robots.com/fileadmin/files/downloads/Datenblaetter/USBoard-Datenblatt.pdf
 
+## Distributors
+Neobotix USBoard and accessories are available at:
+
+* Neobotix GmbH (http://www.neobotix-robots.com/company-contact.html)
+* Customers in the U.S. please contact our local distributor AutonomouStuff (http://autonomoustuff.com/product/ultrasonic/).
+
 ## Parameters and Usage
 
 ### Coming Soon!
