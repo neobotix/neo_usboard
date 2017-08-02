@@ -42,23 +42,22 @@
 //#### main programm ####
 int main(int argc, char** argv)
 {
-    // initialize ROS, spezify name of node
+    // initialize ROS
     ros::init(argc, argv, "neo_usboard_node");
     neo_usboard_node node;
     if(node.init() != 0) return 1;
     double requestRate = node.getRequestRate();
-    ros::Rate r(requestRate); //Cycle-Rate: Frequency of publishing States
+    ros::Rate r(requestRate); //Frequency of publishing States
 
-    node.requestBoardStatus();
-    node.requestActivateChannels();
-        
+    //node.requestBoardStatus();
+    //node.requestActivateChannels();
+
     while(node.n.ok())
     {
         node.requestSensorReadings1TO8();
         node.requestSensorReadings9TO16();
         node.requestAnalogreadings();
         node.PublishUSBoardData();
-        ros::spinOnce();
         r.sleep();
     }
 

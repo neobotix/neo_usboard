@@ -85,72 +85,75 @@ SerUSBoard::~SerUSBoard()
 
 int SerUSBoard::eval_RXBuffer()
 {
+
+    if( !m_bComInit ) return 0;
+
 	int errorFlag = NO_ERROR;
-		static int siNoMsgCnt = 0;
+    static int siNoMsgCnt = 0;
 
-		int iNumByteRec = NUM_BYTE_REC;
+    int iNumByteRec = NUM_BYTE_REC;
 
-		const int c_iNrBytesMin = NUM_BYTE_REC_HEADER + iNumByteRec + NUM_BYTE_REC_CHECKSUM;  // =NUM_BYTE_REC_USBOARD_11
+    const int c_iNrBytesMin = NUM_BYTE_REC_HEADER + iNumByteRec + NUM_BYTE_REC_CHECKSUM;  // =NUM_BYTE_REC_USBOARD_11
 
-			int i;
-			int iNrBytesInQueue, iNrBytesRead, iDataStart;
-			unsigned char cDat[RS232_RX_BUFFERSIZE];
-			unsigned char cTest = 0xFF;
+    int i;
+    int iNrBytesInQueue, iNrBytesRead, iDataStart;
+    unsigned char cDat[RS232_RX_BUFFERSIZE];
+    unsigned char cTest = 0xFF;
 
-			if( !m_bComInit ) return 0;
+    //enough data in queue?
+    iNrBytesInQueue = m_SerIO.getSizeRXQueue();
+    if(iNrBytesInQueue < c_iNrBytesMin)
+    {
+        siNoMsgCnt++;
+        if(siNoMsgCnt > 25)
+        {
+            siNoMsgCnt = 0;
+            errorFlag = NO_MESSAGES;
+        }
+        else
+        {
+            errorFlag = TOO_LESS_BYTES_IN_QUEUE;
+        }
+        return errorFlag;
+    }
+    else
+    {
+        siNoMsgCnt = 0;
+    }
 
-				//enough data in queue?
-			iNrBytesInQueue = m_SerIO.getSizeRXQueue();
-			if(iNrBytesInQueue < c_iNrBytesMin)
-				{
-					siNoMsgCnt++;
-					if(siNoMsgCnt > 25)
-					{
-						siNoMsgCnt = 0;
-						errorFlag = NO_MESSAGES;
-					}  else errorFlag = TOO_LESS_BYTES_IN_QUEUE;
+    // read data
+    iNrBytesRead = m_SerIO.readBlocking((char*)&cDat[0], iNrBytesInQueue);
+
+    //log
+    if(logging == true)
+    {
+        log_to_file(2, cDat); //direction 1 = transmitted; 2 = recived
+    }
 
 
-					return errorFlag;
-				}
-				else
-				{
-					siNoMsgCnt = 0;
-				}
+    for(i = (iNrBytesRead - c_iNrBytesMin); i >= 0 ; i--)
+    {
+        //try to find start bytes
+        if((cDat[i] == cTest) && (cDat[i+1]==m_iCmdUSBoard))
+        {
+            iDataStart = i + 1;
 
-				// search most recent data from back of queue
-				iNrBytesRead = m_SerIO.readBlocking((char*)&cDat[0], iNrBytesInQueue);
+            // checksum ok?
+            if( convRecMsgToData(&cDat[iDataStart]))
+            {
+                errorFlag = NO_ERROR;
+                //continue;
+            }
+            else
+            {
+                errorFlag = CHECKSUM_ERROR;
+                return errorFlag;
+            }
+        }
 
-				//log
-				if(logging == true)
-				{
-					log_to_file(2, cDat); //direction 1 = transmitted; 2 = recived
-				}
+    }
 
-
-			for(i = (iNrBytesRead - c_iNrBytesMin); i >= 0 ; i--)
-				{
-					//try to find start bytes
-					if((cDat[i] == cTest) && (cDat[i+1]==m_iCmdUSBoard))
-					 {
-						iDataStart = i + 1;
-
-						// checksum ok?
-						if( convRecMsgToData(&cDat[iDataStart]))
-						{
-							errorFlag = NO_ERROR;
-							//continue;
-						}
-						else
-						{
-							errorFlag = CHECKSUM_ERROR;
-							return errorFlag;
-						}
-				      }
-
-				 }
-
- return errorFlag;
+    return errorFlag;
 
 }
 
