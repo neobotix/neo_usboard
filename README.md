@@ -25,11 +25,11 @@ Neobotix USBoard and accessories are available at:
 Tested with: ROS Indigo on Ubuntu 14.04
 
 1. Clone the repository into your catkin workspace src folder ($ git clone https://github.com/neobotix/neo_usboard.git)
-2. Check the ttyUSB port on which the USBoard is connected to the PC via RS-232 (genrally /dev/ttyUSB0)
-3. Define Parameters in launch/usboard_param.yaml file 
+2. Check the ttyUSB port on which the USBoard is connected to the PC via RS-232 (generally /dev/ttyUSB0)
+3. Define Parameters in launch/usboard_param.yaml 
 3. Make sure that neo_msgs package is added to your catkin workspace
 4. Build your catkin workspace
-5. Run the usboard roslaunch file ( $ roslaunch neo_usboard neo_usboard.launch)
+5. Run the neo_usboard roslaunch file ( $ roslaunch neo_usboard neo_usboard.launch)
 6. To print and montior the published sensors data use rostopic or rqt ($ rostopic echo /USBoard/Measurements)
 
 ### Topics
@@ -62,7 +62,7 @@ Tested with: ROS Indigo on Ubuntu 14.04
 | ComPort | /dev/ttyUSB0 | Port the Neobotix USBoard is connected to |
 | usboard_timeout | 0.5 | Timeout in [s] |
 | requestRate | 5 | Request and Publish rate of sensor values in [Hz] (10Hz maximum) |
-| log | false | Write raw Data for debugging to file |
+| log | false | Write raw data for debugging to file |
 | sensor1_active | true | defines if sensor_msgs/Range Topic for ultrasonic sensor 1 should be published |
 | sensor2_active | true | defines if sensor_msgs/Range Topic for ultrasonic sensor 2 should be published |
 | sensor3_active | true | defines if sensor_msgs/Range Topic for ultrasonic sensor 3 should be published |
