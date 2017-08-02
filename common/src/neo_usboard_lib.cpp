@@ -44,14 +44,17 @@
 int neo_usboard_node::init()
 {
 
-
-	if (n.hasParam("ComPort"))
+    /************************************************************************
+     * Read Parameter from ROS Parameter-Server
+    ************************************************************************/
+    ROS_INFO("Loading Parameter from ROS-Parameter-Server");
+    if(n.hasParam("ComPort"))
 	{
-		n.getParam("ComPort", sComPort);
-		ROS_INFO("Loaded ComPort parameter from parameter server: %s",sComPort.c_str());
+        n.getParam("ComPort", m_sComPort);
+        ROS_INFO("Loaded ComPort parameter from parameter server: %s",m_sComPort.c_str());
 	}
 
-	n.param("message_timeout", usboard_timeout_, 0.5);
+    n.param("message_timeout", usboard_timeout_, 2.0);
     n.param("requestRate", requestRate, 5.0);
 
     //Sensor Active Parameter
@@ -72,12 +75,50 @@ int neo_usboard_node::init()
     n.param("sensor15_active", m_bUSBoardSensorActive[14], false);
     n.param("sensor16_active", m_bUSBoardSensorActive[15], false);
 
+    //log
+    n.param("log", log, false);
+
+    /************************************************************************
+     * Initialize USBoard
+     *
+     *
+     *
+     *
+    ************************************************************************/
 	m_SerUSBoard = new SerUSBoard();
-    readParameter();
 
-	m_SerUSBoard->init();
+    bool bInitSerUSBoardRet = false;
+    bInitSerUSBoardRet = m_SerUSBoard->init(m_sComPort.c_str());
 
-	ROS_INFO("Opened USboard at ComPort = %s", sComPort.c_str());
+    if(bInitSerUSBoardRet)
+    {
+        ROS_INFO("Opened USboard at ComPort = %s", m_sComPort.c_str());
+    }
+    else
+    {
+        ROS_ERROR("FAILED: Could not opened USboard at ComPort = %s", m_sComPort.c_str());
+        return 1;
+    }
+
+    //enable logging if needed
+    if(log == true)
+    {
+        ROS_INFO("Log enabled");
+        m_SerUSBoard->enable_logging();
+    }
+    else
+    {
+        ROS_INFO("Log disabled");
+        m_SerUSBoard->disable_logging();
+    }
+
+    /************************************************************************
+     * Advertise and Subscribe ROS Topics
+     *
+     *
+     *
+     *
+    ************************************************************************/
 
     topicPub_usBoard = n.advertise<neo_msgs::USBoard>("/USBoard/Measurements",1);
 
@@ -98,33 +139,8 @@ int neo_usboard_node::init()
     if(m_bUSBoardSensorActive[14])topicPub_USRangeSensor15 = n.advertise<sensor_msgs::Range>("/USBoard/Sensor15",1);
     if(m_bUSBoardSensorActive[15])topicPub_USRangeSensor16 = n.advertise<sensor_msgs::Range>("/USBoard/Sensor16",1);
 
-	//log
-	n.getParam("log", log);
-	if(log == true)
-	{
-		ROS_INFO("Log enabled");
-		m_SerUSBoard->enable_logging();
-	}
-	else
-	{
-		ROS_INFO("Log disabled");
-		m_SerUSBoard->disable_logging();
-	}
-
    return 0;
 }
-
-
-//--------------------------------------------------------------------------------
-
-void neo_usboard_node::readParameter()
-{
-	std::string sNumComPort;
-	n.getParam("ComPort", sNumComPort);
-	m_SerUSBoard->SetPortConfig(sNumComPort);
-
-}
-//--------------------------------------------------------------------------------
 
 double neo_usboard_node::getRequestRate()
 {
@@ -289,20 +305,27 @@ void neo_usboard_node::PublishUSBoardData()
 {
 		if(!usboard_available == 1) return;
 
-		int usSensors[4];
-        int usAnalog[4];
+        int iUSSensors[16];
+        int iUSAnalog[4];
 		neo_msgs::USBoard usBoard;
 
-		m_SerUSBoard->getSensorData1To4(usSensors);
+        m_SerUSBoard->getSensorData(iUSSensors);
+        for(int i=0; i < 16; i++)
+        {
+            usBoard.sensor[i] = iUSSensors[i];
+        }
+
+        /*m_SerUSBoard->getSensorData1To4(usSensors);
 		for(int i=0; i<4; i++) usBoard.sensor[i] = usSensors[i];
 		m_SerUSBoard->getSensorData5To8(usSensors);
 		for(int i=0; i<4; i++) usBoard.sensor[i+4] = usSensors[i];
 		m_SerUSBoard->getSensorData9To12(usSensors);
 		for(int i=0; i<4; i++) usBoard.sensor[i+8] = usSensors[i];
-		m_SerUSBoard->getSensorData13To16(usSensors);
-		for(int i=0; i<4; i++) usBoard.sensor[i+12] = usSensors[i];
-		m_SerUSBoard->getAnalogInCh1To4Data(usAnalog);
-		for(int i=0; i<4; i++) usBoard.analog[i] = usAnalog[i];
+        m_SerUSBoard->getSensorData13To16(usSensors);
+        for(int i=0; i<4; i++) usBoard.sensor[i+12] = usSensors[i];*/
+
+        m_SerUSBoard->getAnalogInCh1To4Data(iUSAnalog);
+        for(int i=0; i<4; i++) usBoard.analog[i] = iUSAnalog[i];
 
         //Publish raw data in neo_msgs::USBoard format
         topicPub_usBoard.publish(usBoard);

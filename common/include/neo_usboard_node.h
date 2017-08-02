@@ -110,7 +110,7 @@ class neo_usboard_node
 
 	private:
 
-        std::string sComPort;
+        std::string m_sComPort;
         SerUSBoard * m_SerUSBoard;
 
         double requestRate;
