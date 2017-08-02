@@ -52,7 +52,7 @@ int neo_usboard_node::init()
 	}
 
 	n.param("message_timeout", usboard_timeout_, 0.5);
-	n.param("requestRate", requestRate, 25.0);
+    n.param("requestRate", requestRate, 5.0);
 
     //Sensor Active Parameter
     n.param("sensor1_active", m_bUSBoardSensorActive[0], false);
@@ -190,7 +190,7 @@ int neo_usboard_node::requestSensorReadings1TO8()
 	int ret;
 	//Request Sensor 1 to 8 readings
 	ret = m_SerUSBoard->sendCmdGetData1To8();
-    ros::Duration(0.01).sleep(); // transmission command interval time
+    ros::Duration(0.02).sleep(); // transmission command interval time
 
 	if(ret != SerUSBoard::NO_ERROR) {
 		ROS_ERROR("Error in sending message to USboard over SerialIO, lost bytes during writing");
@@ -204,7 +204,7 @@ int neo_usboard_node::requestSensorReadings1TO8()
 		ROS_ERROR("For a long time, no messages from USBoard have been received, check com port!");
 		if(time_last_message_received_.toSec() - ros::Time::now().toSec() > usboard_timeout_) {usboard_online = false;}
 	} else if(ret==SerUSBoard::TOO_LESS_BYTES_IN_QUEUE) {
-        //ROS_ERROR("USBoard: Too less bytes in queue");
+        //ROS_ERROR("USBoard 1-8: Too less bytes in queue");
 	} else if(ret==SerUSBoard::CHECKSUM_ERROR) {
 		ROS_ERROR("A checksum error occurred while reading from usboard data");
 	} else if(ret==SerUSBoard::NO_ERROR) {
@@ -224,7 +224,7 @@ int neo_usboard_node::requestSensorReadings9TO16()
 	int ret;
 	//Request Sensor 9 to 16 readings
 	ret = m_SerUSBoard->sendCmdGetData9To16();
-    ros::Duration(0.01).sleep(); // transmission command interval time
+    ros::Duration(0.02).sleep(); // transmission command interval time
 
 	if(ret != SerUSBoard::NO_ERROR) {
 		ROS_ERROR("Error in sending message to USboard over SerialIO, lost bytes during writing");
@@ -238,7 +238,7 @@ int neo_usboard_node::requestSensorReadings9TO16()
 		ROS_ERROR("For a long time, no messages from USBoard have been received, check com port!");
 		if(time_last_message_received_.toSec() - ros::Time::now().toSec() > usboard_timeout_) {usboard_online = false;}
 	} else if(ret==SerUSBoard::TOO_LESS_BYTES_IN_QUEUE) {
-		//ROS_ERROR("USBoard: Too less bytes in queue");
+        //ROS_ERROR("USBoard 9-16: Too less bytes in queue");
 	} else if(ret==SerUSBoard::CHECKSUM_ERROR) {
 		ROS_ERROR("A checksum error occurred while reading from usboard data");
 	} else if(ret==SerUSBoard::NO_ERROR) {
