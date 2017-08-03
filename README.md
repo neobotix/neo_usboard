@@ -15,7 +15,7 @@ The USBoard is available as standalone unit and in all Neobotix mobile robots (h
 ## Distributors
 Neobotix USBoard and accessories are available at:
 
-* Neobotix GmbH (http://www.neobotix-robots.com/company-contact.html)
+* Neobotix GmbH (http://www.neobotix-robots.com)
 * Customers in the U.S. please contact our local distributor AutonomouStuff (http://autonomoustuff.com/product/ultrasonic/).
 
 ## Parameters and Usage
@@ -79,3 +79,6 @@ Tested with: ROS Indigo on Ubuntu 14.04
 | sensor14_active | false | defines if sensor_msgs/Range Topic for ultrasonic sensor 14 should be published |
 | sensor15_active | false | defines if sensor_msgs/Range Topic for ultrasonic sensor 15 should be published |
 | sensor16_active | false | defines if sensor_msgs/Range Topic for ultrasonic sensor 16 should be published |
+
+## Warranty
+This software is provided by the copyright holders and contributors "as is" and any express or implied warranties, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose are disclaimed. In no event shall the copyright owner or contributors be liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including, but not limited to, procurement of substitute goods or services; loss of use, data, or profits; or business interruption) however caused and on any theory of liability, whether in contract, strict liability, or tort (including negligence or otherwise) arising in any way out of the use of this software, even if advised of the possibility of such damage.
