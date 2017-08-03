@@ -64,7 +64,6 @@ class SerUSBoard
         int sendCmdSetChannelActive();
         int sendCmdGetData1To8();
         int sendCmdGetData9To16();
-        int sendCmdReadParaSet();
         int sendCmdGetAnalogIn();
 
         // read received sensor data from buffer
@@ -115,7 +114,7 @@ class SerUSBoard
         int m_iNumBytesSend;
 
         //logging
-        bool logging;
+        bool m_bLogging;
 
         // USBoard
         SerialIO m_SerIO;
@@ -126,19 +125,10 @@ class SerUSBoard
         //USBoard Data Readings
         int m_iCmdConnectAns[7];
         int m_iReadAnsFormat;
-        int m_iTransMode;
         int m_iSensorData1To4[4];
         int m_iSensorData5To8[4];
         int m_iSensorData9To12[4];
         int m_iSensorData13To16[4];
-        int m_iSensorAcc1To4;
-        int m_iSensorAcc5To8;
-        int m_iSensorAcc9To12;
-        int m_iSensorAcc13To16;
-        int m_iSensorStatus1To4;
-        int m_iSensorStatus5To8;
-        int m_iSensorStatus9To12;
-        int m_iSensorStatus13To16;
         int m_iAnalogInDataCh1To4LowByte[4];
         int m_iAnalogInDataCh1To4HighBits[2];
 

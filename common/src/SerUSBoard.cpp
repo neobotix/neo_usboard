@@ -39,7 +39,6 @@
 
 #include <stdio.h>
 #include <math.h>
-#include <ros/ros.h>
 #include "../include/SerUSBoard.h"
 
 
@@ -67,7 +66,7 @@
  ************************************************/
 SerUSBoard::SerUSBoard()
 {
-	m_iNumBytesSend = NUM_BYTE_SEND_USBOARD_08;
+    m_iNumBytesSend = NUM_BYTE_SEND_USBOARD_08;
     m_bComInit = false;
 }
 
@@ -77,7 +76,7 @@ SerUSBoard::SerUSBoard()
 SerUSBoard::~SerUSBoard()
 {
     m_bComInit = false;
-	m_SerIO.closeIO();
+    m_SerIO.closeIO();
 }
 
 /*************************************************
@@ -87,7 +86,7 @@ bool SerUSBoard::init(const char* sNumComPort)
 {
     int iRet;
     m_SerIO.setBaudRate(RS232_BAUDRATE);
-    m_SerIO.setDeviceName(sNumComPort);  // m_SerIO.setDeviceName("/dev/ttyUSB0");
+    m_SerIO.setDeviceName(sNumComPort);
     m_SerIO.setBufferSize(RS232_RX_BUFFERSIZE, RS232_TX_BUFFERSIZE);
     m_SerIO.setTimeout(RS232_TIMEOUT);
     iRet = m_SerIO.openIO();
@@ -149,7 +148,7 @@ int SerUSBoard::eval_RXBuffer()
     iNrBytesRead = m_SerIO.readBlocking((char*)&cDat[0], iNrBytesInQueue);
 
     //log
-    if(logging == true)
+    if(m_bLogging == true)
     {
         log_to_file(2, cDat); //direction 1 = transmitted; 2 = recived
     }
@@ -197,9 +196,8 @@ int SerUSBoard::sendCmdConnect()
  ************************************************/
 int SerUSBoard::sendCmdSetChannelActive()
 {
-
-	   m_iCmdUSBoard= CMD_SET_CHANNEL_ACTIVE;
-	   return(sendCmd());
+    m_iCmdUSBoard= CMD_SET_CHANNEL_ACTIVE;
+    return(sendCmd());
 }
 
 /*************************************************
@@ -207,10 +205,8 @@ int SerUSBoard::sendCmdSetChannelActive()
  ************************************************/
 int SerUSBoard::sendCmdGetData1To8()
 {
-
-	   m_iCmdUSBoard= CMD_GET_DATA_1TO8;
-	   return(sendCmd());
-
+    m_iCmdUSBoard= CMD_GET_DATA_1TO8;
+    return(sendCmd());
 }
 
 /*************************************************
@@ -218,10 +214,8 @@ int SerUSBoard::sendCmdGetData1To8()
  ************************************************/
 int SerUSBoard::sendCmdGetData9To16()
 {
-
-	    m_iCmdUSBoard= CMD_GET_DATA_9TO16;
-		return(sendCmd());
-
+    m_iCmdUSBoard= CMD_GET_DATA_9TO16;
+    return(sendCmd());
 }
 
 /*************************************************
@@ -229,10 +223,8 @@ int SerUSBoard::sendCmdGetData9To16()
  ************************************************/
 int SerUSBoard::sendCmdGetAnalogIn()
 {
-
-		m_iCmdUSBoard= CMD_GET_ANALOGIN;
-		return(sendCmd());
-
+    m_iCmdUSBoard= CMD_GET_ANALOGIN;
+    return(sendCmd());
 }
 
 /*************************************************
@@ -258,7 +250,7 @@ int SerUSBoard::sendCmd()
     }
 
     //log
-    if(logging == true)
+    if(m_bLogging == true)
     {
         log_to_file(1, cMsg); //direction 1 = transmitted; 2 = recived
     }
@@ -275,9 +267,12 @@ int SerUSBoard::getSensorData(int *iSensorDistCM)
 
     m_Mutex.lock();
 
-    for(int i = 0; i < 16; i++)
+    for(int i = 0; i < 4; i++)
     {
         iSensorDistCM[i] = m_iSensorData1To4[i];
+        iSensorDistCM[i+4] = m_iSensorData5To8[i];
+        iSensorDistCM[i+8] = m_iSensorData9To12[i];
+        iSensorDistCM[i+12] = m_iSensorData13To16[i];
     }
 
     m_Mutex.unlock();
@@ -356,16 +351,16 @@ int SerUSBoard::getSensorData13To16(int *iSensorDistCM)
 
 int SerUSBoard::getAnalogInCh1To4Data(int *iAnalogInCh1To4Data)
 {
-	int i;
-	int iAnalogInCh1To4HighBits[4];
-		//m_Mutex.lock();
+    int i;
+    int iAnalogInCh1To4HighBits[4];
+    //m_Mutex.lock();
 
-	iAnalogInCh1To4HighBits[0] = m_iAnalogInDataCh1To4HighBits[0] & 0x0f;
-	iAnalogInCh1To4HighBits[1] = (m_iAnalogInDataCh1To4HighBits[0] & 0xf0) >> 4;
-	iAnalogInCh1To4HighBits[2] = m_iAnalogInDataCh1To4HighBits[1] & 0x0f;
-	iAnalogInCh1To4HighBits[3] = (m_iAnalogInDataCh1To4HighBits[1] & 0xf0) >> 4;
+    iAnalogInCh1To4HighBits[0] = m_iAnalogInDataCh1To4HighBits[0] & 0x0f;
+    iAnalogInCh1To4HighBits[1] = (m_iAnalogInDataCh1To4HighBits[0] & 0xf0) >> 4;
+    iAnalogInCh1To4HighBits[2] = m_iAnalogInDataCh1To4HighBits[1] & 0x0f;
+    iAnalogInCh1To4HighBits[3] = (m_iAnalogInDataCh1To4HighBits[1] & 0xf0) >> 4;
 
-	for(i = 0; i < 4; i++)
+    for(i = 0; i < 4; i++)
     {
         iAnalogInCh1To4Data[i] = (iAnalogInCh1To4HighBits[i] << 8) | m_iAnalogInDataCh1To4LowByte[i];
     }
@@ -380,12 +375,12 @@ int SerUSBoard::getAnalogInCh1To4Data(int *iAnalogInCh1To4Data)
 
 void SerUSBoard::enable_logging()
 {
-	logging = true;
+    m_bLogging = true;
 }
 
 void SerUSBoard::disable_logging()
 {
-	logging = false;
+    m_bLogging = false;
 }
 
 //-----------------------------------------------
@@ -481,127 +476,101 @@ void SerUSBoard::convDataToSendMsg(unsigned char cMsg[])
 
 bool SerUSBoard::convRecMsgToData(unsigned char cMsg[])
 {
-	unsigned int iNumByteRec = NUM_BYTE_REC;
+    unsigned int iNumByteRec = NUM_BYTE_REC;
 
-		int i;
-		unsigned int iTxCheckSum;
-		unsigned int iCheckSum;
+    int i;
+    unsigned int iTxCheckSum;
+    unsigned int iCheckSum;
 
-	//	m_Mutex.lock();
+    //	m_Mutex.lock();
 
-		// test checksum
-		iCheckSum = getCheckSum(cMsg, iNumByteRec);
+    // check if checksum is valid
+    iCheckSum = getCheckSum(cMsg, iNumByteRec);
 
-		iTxCheckSum = (cMsg[iNumByteRec]<<8)|(cMsg[iNumByteRec+1]);
+    iTxCheckSum = (cMsg[iNumByteRec]<<8)|(cMsg[iNumByteRec+1]);
 
-		if(iCheckSum != iTxCheckSum)
-		{
-			return false;
-		}
-		
-		// convert data
-		int iCnt = 0;
+    if(iCheckSum != iTxCheckSum)
+    {
+        return false;
+    }
 
-		m_iCmdUSBoard= cMsg[iCnt];
+    // convert data
+    int iCnt = 0;
 
-		if(m_iCmdUSBoard == CMD_CONNECT)
-		{
+    m_iCmdUSBoard= cMsg[iCnt];
 
-			for(i=0; i<8; i++)
-			{
-				iCnt+=1;
-				m_iCmdConnectAns[i]= cMsg[iCnt];
-			}
-			return true;
-		}
+    if(m_iCmdUSBoard == CMD_CONNECT)
+    {
+        for(i=0; i<8; i++)
+        {
+            iCnt+=1;
+            m_iCmdConnectAns[i]= cMsg[iCnt];
+        }
+    }
 
 
-		if(m_iCmdUSBoard == CMD_GET_DATA_1TO8)
-		{
-			iCnt+=1;
-			m_iReadAnsFormat = cMsg[iCnt];
+    if(m_iCmdUSBoard == CMD_GET_DATA_1TO8)
+    {
+        iCnt+=1;
+        m_iReadAnsFormat = cMsg[iCnt];
 
-			if(m_iReadAnsFormat == 0 )
-			{
-				for(i=0; i<4;i++)
-				{
-					iCnt+=1;
-					m_iSensorData1To4[i] = cMsg[iCnt];
+        if(m_iReadAnsFormat == 0 )
+        {
+            for(i=0; i<4;i++)
+            {
+                iCnt+=1;
+                m_iSensorData1To4[i] = cMsg[iCnt];
 
-				}
-				//m_iSensorAcc1To4 = cMsg[iCnt+1];
-				//m_iSensorStatus1To4 = cMsg[iCnt+2];
-				return true;
-			}
+            }
+        }
+        else if(m_iReadAnsFormat == 1 )
+        {
+            for(i=0; i<4;i++)
+            {
+                iCnt+=1;
+                m_iSensorData5To8[i] = cMsg[iCnt];
 
-			else if(m_iReadAnsFormat == 1 )
-			{
-				for(i=0; i<4;i++)
-				{
-					iCnt+=1;
-					m_iSensorData5To8[i] = cMsg[iCnt];
+            }
+        }
+    }
 
-				}
-				//m_iSensorAcc5To8 = cMsg[iCnt+1];
-				//m_iSensorStatus5To8 = cMsg[iCnt+2];
-			    return true;
-			}
+    if(m_iCmdUSBoard == CMD_GET_DATA_9TO16)
+    {
+        iCnt+=1;
+        m_iReadAnsFormat = cMsg[iCnt];
 
-		}
+        if(m_iReadAnsFormat == 0 )
+        {
+            for(i=0; i<4;i++)
+            {
+                iCnt+=1;
+                m_iSensorData9To12[i] = cMsg[iCnt];
+            }
+        }
+        else if(m_iReadAnsFormat == 1 )
+        {
+            for(i=0; i<4;i++)
+            {
+                iCnt+=1;
+                m_iSensorData13To16[i] = cMsg[iCnt];
+            }
+        }
+    }
 
-		if(m_iCmdUSBoard == CMD_GET_DATA_9TO16)
-		{
-			iCnt+=1;
-			m_iReadAnsFormat = cMsg[iCnt];
-
-			if(m_iReadAnsFormat == 0 )
-			{
-		    	for(i=0; i<4;i++)
-				{
-		    		     iCnt+=1;
-				     m_iSensorData9To12[i] = cMsg[iCnt];
-				}
-				//m_iSensorAcc9To12 = cMsg[iCnt+1];
-				//m_iSensorStatus9To12 = cMsg[iCnt+2];
-			    return true;
-			}
-
-			else if(m_iReadAnsFormat == 1 )
-			{
-				for(i=0; i<4;i++)
-				{
-					iCnt+=1;
-					m_iSensorData13To16[i] = cMsg[iCnt];
-				}
-				//m_iSensorAcc13To16 = cMsg[iCnt+1];
-				//m_iSensorStatus13To16 = cMsg[iCnt+2];
-			    return true;
-			}
-		 }
-
-		if(m_iCmdUSBoard == CMD_GET_ANALOGIN)
-		{
-
-			for(i=0; i<4; i++)
-			{
-				iCnt+=1;
-				m_iAnalogInDataCh1To4LowByte[i] = cMsg[iCnt];
-			}
-			    m_iAnalogInDataCh1To4HighBits[0] = cMsg[iCnt+1];
-			    m_iAnalogInDataCh1To4HighBits[1] = cMsg[iCnt+2];
-
-			    return true;
-		}
+    if(m_iCmdUSBoard == CMD_GET_ANALOGIN)
+    {
+        for(i=0; i<4; i++)
+        {
+            iCnt+=1;
+            m_iAnalogInDataCh1To4LowByte[i] = cMsg[iCnt];
+        }
+        m_iAnalogInDataCh1To4HighBits[0] = cMsg[iCnt+1];
+        m_iAnalogInDataCh1To4HighBits[1] = cMsg[iCnt+2];
+    }
 
 
-	   // m_Mutex.unlock();
-
-			if( iCnt >= NUM_BYTE_REC_MAX )
-			{
-				OUTPUTERROR("msg size too small");
-
-			}
-			return true;
+    // m_Mutex.unlock();
+    return true;
 
 }
 
