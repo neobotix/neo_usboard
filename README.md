@@ -18,11 +18,15 @@ Neobotix USBoard and accessories are available at:
 * Neobotix GmbH (http://www.neobotix-robots.com)
 * Customers in the U.S. please contact our local distributor AutonomouStuff (http://autonomoustuff.com/product/ultrasonic/).
 
+## Versions
+
+Tested with:
+* ROS Indigo on Ubuntu 14.04
+* ROS Kinetic on Ubuntu 16.04
+
 ## Parameters and Usage
 
 ### Usage
-
-Tested with: ROS Indigo on Ubuntu 14.04
 
 1. Clone the repository into your catkin workspace src folder ($ git clone https://github.com/neobotix/neo_usboard.git)
 2. Check the ttyUSB port on which the USBoard is connected to the PC via RS-232 (generally /dev/ttyUSB0)
