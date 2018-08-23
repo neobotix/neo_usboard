@@ -49,15 +49,32 @@ int main(int argc, char** argv)
     double requestRate = node.getRequestRate();
     ros::Rate r(requestRate); //Frequency of publishing States
 
-    //node.requestBoardStatus();
-    //node.requestActivateChannels();
+    int iCurrentState = 0;  // 0 = Read ParameterSet
+                            // 1 = Write ParameterSet
+                            // 2 = Publish Data
+    bool bRequestedParameterSet = false;
+
+    //get device parameter
+
 
     while(node.n.ok())
     {
-        node.requestSensorReadings1TO8();
-        node.requestSensorReadings9TO16();
-        node.requestAnalogreadings();
-        node.PublishUSBoardData();
+        if(iCurrentState == 0)
+        {
+            if(!bRequestedParameterSet)
+            {
+                //request current parameter set
+                bool ret = false;
+                ret = node.requestParameterSet();
+                bRequestedParameterSet = true;
+            }
+            else
+            {
+                //Wait until complete ParameterSet was received
+            }
+        }
+
+        //wait to complete cycle time
         r.sleep();
     }
 

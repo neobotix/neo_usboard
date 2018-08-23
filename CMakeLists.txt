@@ -29,7 +29,7 @@ catkin_package(
 include_directories(common/include ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
 add_library(SerialIO_USBoard common/src/SerialIO.cpp)
-add_library(${PROJECT_NAME} common/src/SerUSBoard.cpp common/src/neo_usboard_lib.cpp)
+add_library(${PROJECT_NAME} common/src/SerUSBoard.cpp common/src/neo_usboard_lib.cpp common/src/CANUSBoard.cpp)
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencpp)
 add_dependencies(SerialIO_USBoard ${PROJECT_NAME}_gencpp)

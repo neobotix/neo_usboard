@@ -47,15 +47,27 @@ int neo_usboard_node::init()
     /************************************************************************
      * Read Parameter from ROS Parameter-Server
     ************************************************************************/
-    ROS_INFO("Loading Parameter from ROS-Parameter-Server");
-    if(n.hasParam("ComPort"))
-	{
-        n.getParam("ComPort", m_sComPort);
-        ROS_INFO("Loaded ComPort parameter from parameter server: %s",m_sComPort.c_str());
-	}
+    n.param("use_can_interace", m_bUseCANInterface, true);
 
-    n.param("message_timeout", usboard_timeout_, 2.0);
-    n.param("requestRate", requestRate, 5.0);
+    if(!m_bUseCANInterface)
+    {
+        //Use Serial Interface
+        ROS_INFO("Loading Parameter from ROS-Parameter-Server");
+        if(n.hasParam("ComPort"))
+        {
+            n.getParam("ComPort", m_sComPort);
+            ROS_INFO("Loaded ComPort parameter from parameter server: %s",m_sComPort.c_str());
+        }
+
+        n.param("message_timeout", usboard_timeout_, 2.0);
+        n.param("requestRate", requestRate, 5.0);
+    }
+    else
+    {
+        ROS_INFO("---> Creating CANUSBoard");
+        m_CANUSBoard = new CANUSBoard;
+        m_CANUSBoard->init(n,0x400);
+    }
 
     //Sensor Active Parameter
     n.param("sensor1_active", m_bUSBoardSensorActive[0], false);
@@ -85,10 +97,10 @@ int neo_usboard_node::init()
      *
      *
     ************************************************************************/
-	m_SerUSBoard = new SerUSBoard();
+    //m_SerUSBoard = new SerUSBoard();
 
     bool bInitSerUSBoardRet = false;
-    bInitSerUSBoardRet = m_SerUSBoard->init(m_sComPort.c_str());
+    //bInitSerUSBoardRet = m_SerUSBoard->init(m_sComPort.c_str());
 
     if(bInitSerUSBoardRet)
     {
@@ -145,6 +157,22 @@ int neo_usboard_node::init()
 double neo_usboard_node::getRequestRate()
 {
 	return requestRate;
+}
+//--------------------------------------------------------------------------------
+bool neo_usboard_node::requestParameterSet()
+{
+    /* This functions wraps requesting ParameterSets for Serial and CAN Interfaces
+     *
+     */
+    if(m_bUseCANInterface)
+    {
+        m_CANUSBoard->reqestParameterSet();
+    }
+    else
+    {
+        ROS_WARN("requesting ParameterSets for serial connection not implemented yet!");
+    }
+    return true;
 }
 
 //--------------------------------------------------------------------------------

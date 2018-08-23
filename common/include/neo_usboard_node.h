@@ -40,10 +40,12 @@
 #include <ros/ros.h>
 #include <iostream>
 #include <SerUSBoard.h>
+#include <CANUSBoard.h>
 
 // ROS message includes
 #include <neo_msgs/USBoard.h>
 #include <sensor_msgs/Range.h>
+#include <can_msgs/Frame.h>
 
 // ROS service includes
 //--
@@ -79,6 +81,10 @@ class neo_usboard_node
         ros::Publisher topicPub_USRangeSensor15;
         ros::Publisher topicPub_USRangeSensor16;
 
+        //ROS-CAN-Interface
+        ros::Subscriber topicSub_CANRecMsgs;
+        ros::Publisher topicPub_CANSendMsgs;
+
         // Constructor
         neo_usboard_node()
         {
@@ -96,6 +102,8 @@ class neo_usboard_node
         void PublishUSBoardData();
         int readUSBoardData();
 
+        //new wraper functions
+        bool requestParameterSet();
 
         int init();
         int requestBoardStatus();
@@ -110,8 +118,29 @@ class neo_usboard_node
 
 	private:
 
+        //Interface
+        bool m_bUseCANInterface;
+        CANUSBoard * m_CANUSBoard;
         std::string m_sComPort;
         SerUSBoard * m_SerUSBoard;
+
+
+        //Parametrization
+        bool m_bWriteParameter;
+        bool m_bWriteParameterToEEPROM;
+
+        struct ParameterSet
+        {
+            int iCANBaudRate;
+            int8_t iBytesCANBaseAddress[4];
+            bool bCANExtendedID;
+            int iSendMode;
+            int iSendTimeInterval;
+            bool bSensorActive[16];
+            int iWarningDistances[16];
+            int iAlarmDistances[16];
+            int iSerialNumber;
+        };
 
         double requestRate;
         double usboard_timeout_;
