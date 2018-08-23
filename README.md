@@ -18,6 +18,14 @@ Neobotix USBoard and accessories are available at:
 * Neobotix GmbH (http://www.neobotix-robots.com)
 * Customers in the U.S. please contact our local distributor AutonomouStuff (http://autonomoustuff.com/product/ultrasonic/).
 
+## Versions
+
+Tested with:
+
+* ROS Indigo on Ubuntu 14.04
+* ROS Kinetic on Ubuntu 16.04
+
+
 ## Parameters and Usage
 
 In development!
