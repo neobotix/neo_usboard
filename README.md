@@ -32,16 +32,12 @@ Tested with:
 4. Define parameters in launch/usboard_param.yaml 
 5. Make sure that neo_msgs package is added to your catkin workspace
 6. Build your catkin workspace
-7. Run the neo_usboard roslaunch file ( $ roslaunch neo_usboard neo_usboard.launch)
-8. 
 
 ## Usage
 
-1. Configure the USBoard: neo_usboard/launch/usboard_param.yaml
+1. Configure the USBoard: ``` nano neo_usboard/launch/usboard_param.yaml ```
 2. Start the Node: ```roslaunch neo_usboard neo_usboard.launch ```
 3. Print and montior the published sensors data using rostopic or rqt: ```rostopic echo /USBoard/Measurements```
-
-
 
 ## Topics
 
