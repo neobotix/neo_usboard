@@ -24,20 +24,26 @@ Tested with:
 * ROS Indigo on Ubuntu 14.04
 * ROS Kinetic on Ubuntu 16.04
 
-## Parameters and Usage
-
-### Usage
+## Installation
 
 1. Clone the repository into your catkin workspace src folder ($ git clone https://github.com/neobotix/neo_usboard.git)
 2. Clone neo_msgs into your catkin workspace src folder ($ git clone https://github.com/neobotix/neo_msgs.git)
-2. Check the ttyUSB port on which the USBoard is connected to the PC via RS-232 (generally /dev/ttyUSB0)
-3. Define parameters in launch/usboard_param.yaml 
-3. Make sure that neo_msgs package is added to your catkin workspace
-4. Build your catkin workspace
-5. Run the neo_usboard roslaunch file ( $ roslaunch neo_usboard neo_usboard.launch)
-6. To print and montior the published sensors data use rostopic or rqt ($ rostopic echo /USBoard/Measurements)
+3. Check the ttyUSB port on which the USBoard is connected to the PC via RS-232 (generally /dev/ttyUSB0)
+4. Define parameters in launch/usboard_param.yaml 
+5. Make sure that neo_msgs package is added to your catkin workspace
+6. Build your catkin workspace
+7. Run the neo_usboard roslaunch file ( $ roslaunch neo_usboard neo_usboard.launch)
+8. 
 
-### Topics
+## Usage
+
+1. Configure the USBoard: neo_usboard/launch/usboard_param.yaml
+2. Start the Node: ```roslaunch neo_usboard neo_usboard.launch ```
+3. Print and montior the published sensors data using rostopic or rqt: ```rostopic echo /USBoard/Measurements```
+
+
+
+## Topics
 
 | Name | Type |
 | --- | --- |
@@ -60,7 +66,7 @@ Tested with:
 | /USBoard/Sensor16 | sensor_msgs/Range |
 
 
-### Parameters
+## Parameters
 
 | Parameter | Default Value | Description |
 | --- | --- | --- |
