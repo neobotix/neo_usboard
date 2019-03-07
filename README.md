@@ -29,6 +29,7 @@ Tested with:
 ### Usage
 
 1. Clone the repository into your catkin workspace src folder ($ git clone https://github.com/neobotix/neo_usboard.git)
+2. Clone neo_msgs into your catkin workspace src folder ($ git clone https://github.com/neobotix/neo_msgs.git)
 2. Check the ttyUSB port on which the USBoard is connected to the PC via RS-232 (generally /dev/ttyUSB0)
 3. Define parameters in launch/usboard_param.yaml 
 3. Make sure that neo_msgs package is added to your catkin workspace
