@@ -1,5 +1,10 @@
 <?xml version="1.0"?>
 <launch>
+
+    <!-- start socketcan_bridge -->
+    <node pkg="socketcan_bridge" type="socketcan_bridge_node" name="socketcan_bridge_node" output="screen">
+        <param name="can_device" value="can0" />
+    </node>
     <!-- upload parameters -->
     <rosparam command="load" ns="USBoard" file="$(find neo_usboard)/launch/usboard_param.yaml"/>
     <!-- start usboard node -->

@@ -55,7 +55,7 @@ class CANUSBoard
         CANUSBoard();
         ~CANUSBoard();
 
-        bool init(ros::NodeHandle nh, int CANID);
+        bool init(ros::NodeHandle nh, unsigned int CANID);
 
         //ROS-CAN Interface Callback Functions
         void callbackReceivedCANMessage(can_msgs::Frame msg);
@@ -98,8 +98,7 @@ class CANUSBoard
         ros::Publisher m_topicPubCANSendMsgs;
 
         // USBoard
-
-        int m_iCANID;
+        unsigned int m_iCANID;
 
         // USBoard send commands
         enum USBoardCmd
@@ -115,6 +114,19 @@ class CANUSBoard
             CMD_SET_DEBUG_PARA = 8,
             CMD_GET_DEBUG_PARA = 9,
             CMD_UNKNOWN = 10
+        };
+
+        enum USBoardRespIDs
+        {
+            RESP_CONNECT= 0,
+            RESP_GET_DATA_1TO8_PART_1 = 2,
+            RESP_GET_DATA_1TO8_PART_2 = 3,
+            RESP_GET_DATA_9TO16_PART_1 = 4,
+            RESP_GET_DATA_9TO16_PART_2 = 5,
+            RESP_READ_PARASET = 6,
+            RESP_GET_ANALOGIN = 7,
+            RESP_WRITE_PARASET = 8,
+            RESP_WRITE_PARASET_TO_EEPROM = 9
         };
 
         enum USBoardCANIDs
@@ -148,6 +160,8 @@ class CANUSBoard
 
         //Private CAN msg handling functions
         int HandleReadParameterSetResponse(can_msgs::Frame msg);
+        int HandleReadSensorData1To8(can_msgs::Frame msg);
+        int HandleReadSensorData9To16(can_msgs::Frame msg);
 
 };
 

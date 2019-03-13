@@ -100,12 +100,15 @@ class neo_usboard_node
 
 
         void PublishUSBoardData();
+        void publishUSBoardData();
         int readUSBoardData();
 
         //new wraper functions
         bool requestParameterSet();
 
         int init();
+        int requestSensorData();
+        bool receivedSensorData();
         int requestBoardStatus();
         int requestActivateChannels();
         int requestSensorReadings1TO8();

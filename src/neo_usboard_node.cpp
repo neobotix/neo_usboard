@@ -46,13 +46,18 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "neo_usboard_node");
     neo_usboard_node node;
     if(node.init() != 0) return 1;
-    double requestRate = node.getRequestRate();
-    ros::Rate r(requestRate); //Frequency of publishing States
+    double dRequestRate = 20; //node.getRequestRate(); [Hz]
+    ros::Duration rdTimeOutDuration(1.0); //[s]
+    ros::Time rtTimeOut; // = ros::Time::now();
+    ros::Rate r(dRequestRate); //Frequency of publishing States
 
-    int iCurrentState = 0;  // 0 = Read ParameterSet
+    int iCurrentState = 2;  // 0 = Read ParameterSet
                             // 1 = Write ParameterSet
                             // 2 = Publish Data
+
+    bool bLostConnection = false;
     bool bRequestedParameterSet = false;
+    bool bRequestedSensorData = false;
 
     //get device parameter
 
@@ -71,11 +76,58 @@ int main(int argc, char** argv)
             else
             {
                 //Wait until complete ParameterSet was received
+		//if done go to state 1
             }
         }
+	else if(iCurrentState == 1)
+	{
+		//write param set to can or serial
+	
+	}
+        else if(iCurrentState == 2)
+        {
+            if(!bRequestedSensorData)
+            {
+                //request sensor data
+                bool ret = false;
+                ret = node.requestSensorData();
+                bRequestedSensorData = true;
+                rtTimeOut = ros::Time::now() + rdTimeOutDuration;
+            }
+            else
+            {
+                //Wait until complete sensor data was received
 
+                if(node.receivedSensorData())
+                {
+                    //publish data to topic
+                    node.publishUSBoardData();
+                    bRequestedSensorData = false;
+                    if(bLostConnection)
+                    {
+                        //ROS_INFO("USBoard: Communication established again!");
+                        bLostConnection = false;
+                    }
+                }
+                else
+                {
+                    //Wait and check for timeout
+                    if(ros::Time::now() > rtTimeOut)
+                    {
+                        //ROS_ERROR("USBoard: Timeout: no messages reveived!");
+                        //ROS_ERROR("USBoard: Retry");
+                        bLostConnection = true;
+                        bRequestedSensorData = false;
+                    }
+                }
+
+            }
+
+        }
         //wait to complete cycle time
+        ros::spinOnce();
         r.sleep();
+
     }
 
 	return 0;
