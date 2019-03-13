@@ -128,6 +128,17 @@ void CANUSBoard::callbackReceivedCANMessage(can_msgs::Frame msg)
     }
     
 }
+
+/*************************************************************************************************
+ *
+ *
+ *
+ *                        PUBLIC FUNCTIONS
+ *
+ *
+ *
+ * ***********************************************************************************************/
+
 /*************************************************
  * public function for requesting sensor data 1 - 8
  ************************************************/
@@ -258,6 +269,18 @@ int CANUSBoard::reqestParameterSet()
     reqParamSetMsg.dlc = 8;
     m_topicPubCANSendMsgs.publish(reqParamSetMsg);
 }
+
+/*************************************************************************************************
+ *
+ *
+ *
+ *                        PRIVATE FUNCTIONS
+ *
+ *
+ *
+ * ***********************************************************************************************/
+
+
 /*************************************************
  * private function to handle
  * responses to CMD_GET_DATA_1TO8
@@ -357,7 +380,7 @@ int CANUSBoard::HandleReadParameterSetResponse(can_msgs::Frame msg)
                 }
                 else
                 {
-                    //hanhdle data
+                    //handle data
                     return 2; //Data handled
                 }
             }

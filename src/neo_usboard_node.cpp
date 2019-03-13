@@ -46,7 +46,7 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "neo_usboard_node");
     neo_usboard_node node;
     if(node.init() != 0) return 1;
-    double dRequestRate = 20; //node.getRequestRate(); [Hz]
+    double dRequestRate = 50; //node.getRequestRate(); [Hz]
     ros::Duration rdTimeOutDuration(1.0); //[s]
     ros::Time rtTimeOut; // = ros::Time::now();
     ros::Rate r(dRequestRate); //Frequency of publishing States
