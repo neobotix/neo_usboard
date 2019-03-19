@@ -9,27 +9,54 @@
 ##########################
 #    device parameter    #
 ##########################
-ComPort: /dev/ttyUSB0
-usboard_timeout_: 0.5
-requestRate: 5
+
+#If true: use CAN-Interface
+#If false: use RS232-Interface
+useCAN: true
+comPort: /dev/ttyUSB0
+
+#Mode: 0 = Request
+#      1 = Automatic
+mode: 1
+timeout: 1.0 #[s]
+
+#
 log: false
 
 ##########################
 #        sensors         #
 ##########################
+min_range: 0.5 #[m]
+max_range: 1.5 #[m]
 sensor1_active: true
+sensor1_frame: "range_1_link"
 sensor2_active: true
+sensor2_frame: "range_2_link"
 sensor3_active: true
+sensor3_frame: "range_3_link"
 sensor4_active: true
+sensor4_frame: "range_4_link"
 sensor5_active: true
+sensor5_frame: "range_5_link"
 sensor6_active: true
+sensor6_frame: "range_6_link"
 sensor7_active: true
+sensor7_frame: "range_7_link"
 sensor8_active: true
+sensor8_frame: "range_8_link"
 sensor9_active: true
+sensor9_frame: "range_9_link"
 sensor10_active: true
+sensor10_frame: "range_10_link"
 sensor11_active: true
+sensor11_frame: "range_11_link"
 sensor12_active: true
+sensor12_frame: "range_12_link"
 sensor13_active: true
+sensor13_frame: "range_13_link"
 sensor14_active: true
+sensor14_frame: "range_14_link"
 sensor15_active: true
+sensor15_frame: "range_15_link"
 sensor16_active: true
+sensor16_frame: "range_16_link"

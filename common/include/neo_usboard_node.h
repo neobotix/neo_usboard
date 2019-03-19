@@ -46,6 +46,7 @@
 #include <neo_msgs/USBoard.h>
 #include <sensor_msgs/Range.h>
 #include <can_msgs/Frame.h>
+#include <std_srvs/Empty.h>
 
 // ROS service includes
 //--
@@ -81,6 +82,9 @@ class neo_usboard_node
         ros::Publisher topicPub_USRangeSensor15;
         ros::Publisher topicPub_USRangeSensor16;
 
+        //Service
+        ros::ServiceServer srv_request_data;
+
         //ROS-CAN-Interface
         ros::Subscriber topicSub_CANRecMsgs;
         ros::Publisher topicPub_CANSendMsgs;
@@ -91,6 +95,7 @@ class neo_usboard_node
             usboard_available = false;
             usboard_online = false;
             usboard_timeout_ = 0.5;
+            m_bDataRequestedviaService = false;
         }
 
         ~neo_usboard_node()
@@ -116,7 +121,12 @@ class neo_usboard_node
         int requestAnalogreadings();
 
         void readParameter();
+        int getMode();
         double getRequestRate();
+        double getTimeOut();
+        bool getDataRequestService();
+
+        bool ros_callback_req_data(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 
 
 	private:
@@ -151,7 +161,14 @@ class neo_usboard_node
         ros::Time time_last_message_received_;
         bool usboard_online; //the usboard is sending messages at regular time
         bool usboard_available; //the usboard has sent at least one message -> publish topic
-        bool m_bUSBoardSensorActive[16];
+        int m_iMode;
+        double m_dTimeOut;
+        bool m_bSensorActive[16];
+        std::string m_sSensorFrame[16];
+        double m_dSensorMinRange;
+        double m_dSensorMaxRange;
+
+        bool m_bDataRequestedviaService;
 
         //log
         bool log;  //enables or disables the log for neo_usboard

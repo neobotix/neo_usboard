@@ -46,20 +46,38 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "neo_usboard_node");
     neo_usboard_node node;
     if(node.init() != 0) return 1;
-    double dRequestRate = 50; //node.getRequestRate(); [Hz]
+    double dRequestRate = 5.0; //node.getRequestRate(); [Hz]
     ros::Duration rdTimeOutDuration(1.0); //[s]
+    ros::Duration rdRequestData(1.0/dRequestRate);
+    ros::Time rtNextTimeReqData;
     ros::Time rtTimeOut; // = ros::Time::now();
-    ros::Rate r(dRequestRate); //Frequency of publishing States
+    ros::Rate r(30.0); //Frequency Thread Cycling [Hz]
+
+    int iMode = 0;          // 0 = Request Mode
+                            // 1 = Automatic Mode
 
     int iCurrentState = 2;  // 0 = Read ParameterSet
                             // 1 = Write ParameterSet
-                            // 2 = Publish Data
+                            // 2 = Publish Data (Request Mode)
+                            // 3 = Publish Data (Automatic Mode)
 
     bool bLostConnection = false;
     bool bRequestedParameterSet = false;
     bool bRequestedSensorData = false;
 
     //get device parameter
+
+
+    if(iMode == 1)
+    {
+        ROS_INFO("USBoard: Automatic Mode");
+        iCurrentState = 3;
+    }
+    else
+    {
+        ROS_INFO("USBoard: Request Mode");
+        iCurrentState = 2;
+    }
 
 
     while(node.n.ok())
@@ -86,21 +104,25 @@ int main(int argc, char** argv)
 	}
         else if(iCurrentState == 2)
         {
-            if(!bRequestedSensorData)
+            if(node.getDataRequestService())
             {
-                //request sensor data
-                bool ret = false;
-                ret = node.requestSensorData();
-                bRequestedSensorData = true;
-                rtTimeOut = ros::Time::now() + rdTimeOutDuration;
+                if(!bRequestedSensorData)
+                {
+                    //request sensor data
+                    bool ret = false;
+                    ret = node.requestSensorData();
+                    bRequestedSensorData = true;
+                    rtTimeOut = ros::Time::now() + ros::Duration(1.0);
+                }
             }
-            else
+            if(bRequestedSensorData)
             {
                 //Wait until complete sensor data was received
 
                 if(node.receivedSensorData())
                 {
                     //publish data to topic
+                    //ROS_INFO("Data published");
                     node.publishUSBoardData();
                     bRequestedSensorData = false;
                     if(bLostConnection)
@@ -114,16 +136,23 @@ int main(int argc, char** argv)
                     //Wait and check for timeout
                     if(ros::Time::now() > rtTimeOut)
                     {
-                        //ROS_ERROR("USBoard: Timeout: no messages reveived!");
-                        //ROS_ERROR("USBoard: Retry");
+                        ROS_ERROR("USBoard: Timeout: no messages reveived!");
                         bLostConnection = true;
                         bRequestedSensorData = false;
                     }
                 }
-
             }
+        }//END State == 2
+        else if(iCurrentState == 3)
+        {
+            //Wait until complete sensor data was received
+            if(node.receivedSensorData())
+            {
+                //publish data to topic
+                node.publishUSBoardData();
+            }
+        }//END State == 3
 
-        }
         //wait to complete cycle time
         ros::spinOnce();
         r.sleep();

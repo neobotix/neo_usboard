@@ -171,6 +171,8 @@ bool CANUSBoard::receivedData1To8()
 {
     if(m_bReceivedData1To8Msg1 && m_bReceivedData1To8Msg2)
     {
+        m_bReceivedData1To8Msg1 = false;
+        m_bReceivedData1To8Msg2 = false;
         //ROS_INFO("-----------received data 1 - 8------------");
         return true;
     }
@@ -227,6 +229,8 @@ bool CANUSBoard::receivedData9To16()
     if(m_bReceivedData9To16Msg1 && m_bReceivedData9To16Msg2)
     {
         //ROS_INFO("-----------received data 9 - 16------------");
+        m_bReceivedData9To16Msg1 = false;
+        m_bReceivedData9To16Msg2 = false;
         return true;
     }
     else
