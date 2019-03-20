@@ -38,7 +38,12 @@ Tested with:
 
 ## Parameters
 
-In development!
+| Parameter | Default Value | Description |
+| --- | --- | --- |
+| useCAN | true | CAN is the prefered interface to communicate with USBoard. Other option is RS232. |
+| comPort | /dev/ttyUSB0 | Port for RS232 connection. |
+| mode | 1 | Available modes are Request (mode = 0) and Automatic (mode = 1). In request mode the node offers a ROS-Service to read data from USBoard and publish it. In automatic mode the node is waiting for data from USBoard and will publish it immediately. **Please make sure to configure the USBoard Firmware to the correct settings!**  |
+| timeout | 1.0 | Print warning, if no message was received for longer than the timeout. |
 
 ## Usage
 
