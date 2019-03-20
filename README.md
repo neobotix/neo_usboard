@@ -23,6 +23,7 @@ Neobotix USBoard and accessories are available at:
 Tested with:
 * ROS Indigo on Ubuntu 14.04
 * ROS Kinetic on Ubuntu 16.04
+* ROS Melodic on Ubuntu 18.04
 
 ## Installation
 
