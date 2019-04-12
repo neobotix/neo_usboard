@@ -49,20 +49,42 @@ int neo_usboard_node::init()
     /************************************************************************
      * Read Parameter from ROS Parameter-Server
     ************************************************************************/
-    n.param("use_can_interface", m_bUseCANInterface, true);
+
+    if(!n.hasParam("useCAN"))
+    {
+        ROS_WARN("USBoard: param useCAN not found -> using default true");
+    }
+    n.param("useCAN", m_bUseCANInterface, true);
 
     if(!m_bUseCANInterface)
     {
         //Use Serial Interface
-        ROS_INFO("USBoard: Loading Parameter from ROS-Parameter-Server");
+        ROS_INFO("USBoard: Using RS232-Interface");
         if(n.hasParam("ComPort"))
         {
             n.getParam("ComPort", m_sComPort);
             ROS_INFO("USBoard: Loaded ComPort parameter from parameter server: %s",m_sComPort.c_str());
-        }
 
-        n.param("message_timeout", usboard_timeout_, 2.0);
-        n.param("requestRate", requestRate, 5.0);
+            m_SerUSBoard = new SerUSBoard();
+
+            bool bInitSerUSBoardRet = false;
+            bInitSerUSBoardRet = m_SerUSBoard->init(m_sComPort.c_str());
+
+            if(bInitSerUSBoardRet)
+            {
+                ROS_INFO("USBoard: Opened at ComPort = %s", m_sComPort.c_str());
+            }
+            else
+            {
+                ROS_ERROR("USBoard: Could not open ComPort = %s", m_sComPort.c_str());
+                return -1;
+            }
+        }
+        else
+        {
+            ROS_ERROR("USBoard: parameter ComPort not found -> exiting");
+            return -1;
+        }
     }
     else
     {
@@ -72,9 +94,24 @@ int neo_usboard_node::init()
     }
 
     //Mode
+    if(!n.hasParam("mode"))
+    {
+        ROS_WARN("USBoard: param mode not found -> using default 1");
+    }
     n.param("mode", m_iMode, 1);
 
+    //Interval
+    if(!n.hasParam("interval"))
+    {
+        ROS_WARN("USBoard: param interval not found -> using default 3");
+    }
+    n.param("interval", m_iInterval, 3);
+
     //Timeout
+    if(!n.hasParam("timeout"))
+    {
+        ROS_WARN("USBoard: param timeout not found -> using default 1.0");
+    }
     n.param("timeout", m_dTimeOut, 1.0);
 
     //Sensor Active Parameter
@@ -113,34 +150,56 @@ int neo_usboard_node::init()
     n.param<std::string>("sensor15_frame", m_sSensorFrame[14], "range_15_link");
     n.param<std::string>("sensor16_frame", m_sSensorFrame[15], "range_16_link");
 
-    n.param("min_range", m_dSensorMinRange, 0.2);
-    n.param("max_range", m_dSensorMaxRange, 1.2);
+    //Sensor Warn Distance
+    n.param("sensor1_warn_dist", m_iSensorWarnDist[0], 80);
+    n.param("sensor2_warn_dist", m_iSensorWarnDist[1], 80);
+    n.param("sensor3_warn_dist", m_iSensorWarnDist[2], 80);
+    n.param("sensor4_warn_dist", m_iSensorWarnDist[3], 80);
+    n.param("sensor5_warn_dist", m_iSensorWarnDist[4], 80);
+    n.param("sensor6_warn_dist", m_iSensorWarnDist[5], 80);
+    n.param("sensor7_warn_dist", m_iSensorWarnDist[6], 80);
+    n.param("sensor8_warn_dist", m_iSensorWarnDist[7], 80);
+    n.param("sensor9_warn_dist", m_iSensorWarnDist[8], 80);
+    n.param("sensor10_warn_dist", m_iSensorWarnDist[9], 80);
+    n.param("sensor11_warn_dist", m_iSensorWarnDist[10], 80);
+    n.param("sensor12_warn_dist", m_iSensorWarnDist[11], 80);
+    n.param("sensor13_warn_dist", m_iSensorWarnDist[12], 80);
+    n.param("sensor14_warn_dist", m_iSensorWarnDist[13], 80);
+    n.param("sensor15_warn_dist", m_iSensorWarnDist[14], 80);
+    n.param("sensor16_warn_dist", m_iSensorWarnDist[15], 80);
 
+    //Sensor Alarm Distance
+    n.param("sensor1_alarm_dist", m_iSensorAlarmDist[0], 40);
+    n.param("sensor2_alarm_dist", m_iSensorAlarmDist[1], 40);
+    n.param("sensor3_alarm_dist", m_iSensorAlarmDist[2], 40);
+    n.param("sensor4_alarm_dist", m_iSensorAlarmDist[3], 40);
+    n.param("sensor5_alarm_dist", m_iSensorAlarmDist[4], 40);
+    n.param("sensor6_alarm_dist", m_iSensorAlarmDist[5], 40);
+    n.param("sensor7_alarm_dist", m_iSensorAlarmDist[6], 40);
+    n.param("sensor8_alarm_dist", m_iSensorAlarmDist[7], 40);
+    n.param("sensor9_alarm_dist", m_iSensorAlarmDist[8], 40);
+    n.param("sensor10_alarm_dist", m_iSensorAlarmDist[9], 40);
+    n.param("sensor11_alarm_dist", m_iSensorAlarmDist[10], 40);
+    n.param("sensor12_alarm_dist", m_iSensorAlarmDist[11], 40);
+    n.param("sensor13_alarm_dist", m_iSensorAlarmDist[12], 40);
+    n.param("sensor14_alarm_dist", m_iSensorAlarmDist[13], 40);
+    n.param("sensor15_alarm_dist", m_iSensorAlarmDist[14], 40);
+    n.param("sensor16_alarm_dist", m_iSensorAlarmDist[15], 40);
+
+    if(!n.hasParam("min_range"))
+    {
+        ROS_WARN("USBoard: param min_range not found -> using default 0.2");
+    }
+    n.param("min_range", m_dSensorMinRange, 0.2);
+
+    if(!n.hasParam("max_range"))
+    {
+        ROS_WARN("USBoard: param max_range not found -> using default 1.2");
+    }
+    n.param("max_range", m_dSensorMaxRange, 1.2);
 
     //log
     n.param("log", log, false);
-
-    /************************************************************************
-     * Initialize USBoard
-     *
-     *
-     *
-     *
-    ************************************************************************/
-    //m_SerUSBoard = new SerUSBoard();
-
-    //bool bInitSerUSBoardRet = false;
-    //bInitSerUSBoardRet = m_SerUSBoard->init(m_sComPort.c_str());
-
-    /*if(bInitSerUSBoardRet)
-    {
-        ROS_INFO("Opened USboard at ComPort = %s", m_sComPort.c_str());
-    }
-    else
-    {
-        ROS_ERROR("FAILED: Could not opened USboard at ComPort = %s", m_sComPort.c_str());
-        return 1;
-    }*/
 
     //enable logging if needed
     if(log == true)
@@ -155,9 +214,9 @@ int neo_usboard_node::init()
     }
 
     /************************************************************************
-     * Advertise and Subscribe ROS Topics
+     * advertise and subscribe ROS-Topics
      *
-     *
+     * advertise ROS-Service
      *
      *
     ************************************************************************/
@@ -274,6 +333,9 @@ bool neo_usboard_node::receivedSensorData()
     else
     {
         //TODO
+        //eval RX buffer
+        //m_SerUSBoard->eval_RXBuffer();
+        //check data
         ROS_WARN("USBoard: requesting ParameterSets for serial connection not implemented yet!");
     }
     return false;
@@ -700,6 +762,102 @@ bool neo_usboard_node::requestParameterSet()
         ROS_WARN("USBoard: requesting ParameterSets for serial connection not implemented yet!");
     }
     return true;
+}
+
+//--------------------------------------------------------------------------------
+bool neo_usboard_node::receivedParameterSet()
+{
+    /* This functions wraps requesting ParameterSets for Serial and CAN Interfaces
+     *
+     */
+    if(m_bUseCANInterface)
+    {
+        return m_CANUSBoard->receivedParameterSet();
+    }
+    else
+    {
+        //TODO
+        ROS_WARN("USBoard: requesting ParameterSets for serial connection not implemented yet!");
+    }
+    return true;
+}
+
+bool neo_usboard_node::writeParameterSetPartX(int iPart)
+{
+    /* This functions wraps writing ParameterSets for Serial and CAN Interfaces
+     *
+     */
+
+    unsigned char ucMode;
+    if(m_iMode == 0)
+    {
+        //Request
+        ucMode = 0x0;
+    }
+    else if (m_iMode == 1)
+    {
+        //Automatic
+        ucMode = 0x1;
+    }
+    else
+    {
+        ROS_ERROR("USBoard: Mode not supported!");
+    }
+
+    unsigned char ucInterval = m_iInterval;
+    unsigned char ucSensorsActive1To8 = 0x0;
+    unsigned char ucSensorsActive9To16 = 0x0;
+    unsigned char ucWarnDist[16];
+    unsigned char ucAlarmDist[16];
+
+    for(int i = 0; i < 16; i++)
+    {
+        ucWarnDist[i] = 0x0;
+        ucAlarmDist[i] = 0x0;
+    }
+
+    //set active sensors
+    if(m_bSensorActive[0]){ucSensorsActive1To8 |= 1;}
+    if(m_bSensorActive[1]){ucSensorsActive1To8 |= 2;}
+    if(m_bSensorActive[2]){ucSensorsActive1To8 |= 4;}
+    if(m_bSensorActive[3]){ucSensorsActive1To8 |= 8;}
+    if(m_bSensorActive[4]){ucSensorsActive1To8 |= 16;}
+    if(m_bSensorActive[5]){ucSensorsActive1To8 |= 32;}
+    if(m_bSensorActive[6]){ucSensorsActive1To8 |= 64;}
+    if(m_bSensorActive[7]){ucSensorsActive1To8 |= 128;}
+
+    if(m_bSensorActive[8]){ucSensorsActive9To16 |= 1;}
+    if(m_bSensorActive[9]){ucSensorsActive9To16 |= 2;}
+    if(m_bSensorActive[10]){ucSensorsActive9To16 |= 4;}
+    if(m_bSensorActive[11]){ucSensorsActive9To16 |= 8;}
+    if(m_bSensorActive[12]){ucSensorsActive9To16 |= 16;}
+    if(m_bSensorActive[13]){ucSensorsActive9To16 |= 32;}
+    if(m_bSensorActive[14]){ucSensorsActive9To16 |= 64;}
+    if(m_bSensorActive[15]){ucSensorsActive9To16 |= 128;}
+
+    //set warn distances
+    //set alarm distances
+    for(int i = 0; i < 16; i++)
+    {
+        ucWarnDist[i] = m_iSensorWarnDist[0];
+        ucAlarmDist[i] = m_iSensorAlarmDist[0];
+    }
+
+    if(m_bUseCANInterface)
+    {
+        m_CANUSBoard->writeParamset(iPart, false, ucMode, ucInterval, ucSensorsActive1To8, ucSensorsActive9To16, ucWarnDist, ucAlarmDist);
+    }
+    else
+    {
+        //TODO
+        ROS_WARN("USBoard: writing ParameterSets for serial connection not implemented yet!");
+    }
+    return true;
+}
+
+bool neo_usboard_node::confirmedParameterSetPartX(int iPart)
+{
+    return m_CANUSBoard->confirmedParamsetPartX(iPart);
 }
 
 /************************************************************************************************

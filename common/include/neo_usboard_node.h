@@ -58,8 +58,25 @@
 //#### node class ####
 class neo_usboard_node
 {
-	//
-	public:
+
+    public:
+
+        // Constructor
+        neo_usboard_node()
+        {
+            usboard_available = false;
+            usboard_online = false;
+            usboard_timeout_ = 0.5;
+            m_bDataRequestedviaService = false;
+
+            m_iMode = 1;
+        }
+
+        ~neo_usboard_node()
+        {
+            delete m_SerUSBoard;
+        }
+
         // create a handle for this node, initialize node
         ros::NodeHandle n;
 
@@ -89,20 +106,6 @@ class neo_usboard_node
         ros::Subscriber topicSub_CANRecMsgs;
         ros::Publisher topicPub_CANSendMsgs;
 
-        // Constructor
-        neo_usboard_node()
-        {
-            usboard_available = false;
-            usboard_online = false;
-            usboard_timeout_ = 0.5;
-            m_bDataRequestedviaService = false;
-        }
-
-        ~neo_usboard_node()
-        {
-            delete m_SerUSBoard;
-        }
-
 
         void PublishUSBoardData();
         void publishUSBoardData();
@@ -110,6 +113,9 @@ class neo_usboard_node
 
         //new wraper functions
         bool requestParameterSet();
+        bool receivedParameterSet();
+        bool writeParameterSetPartX(int iPart);
+        bool confirmedParameterSetPartX(int iPart);
 
         int init();
         int requestSensorData();
@@ -129,7 +135,7 @@ class neo_usboard_node
         bool ros_callback_req_data(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 
 
-	private:
+    private:
 
         //Interface
         bool m_bUseCANInterface;
@@ -162,9 +168,12 @@ class neo_usboard_node
         bool usboard_online; //the usboard is sending messages at regular time
         bool usboard_available; //the usboard has sent at least one message -> publish topic
         int m_iMode;
+        int m_iInterval;
         double m_dTimeOut;
         bool m_bSensorActive[16];
         std::string m_sSensorFrame[16];
+        int m_iSensorWarnDist[16];  //[cm]
+        int m_iSensorAlarmDist[16]; //[cm]
         double m_dSensorMinRange;
         double m_dSensorMaxRange;
 

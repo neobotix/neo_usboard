@@ -65,8 +65,10 @@ class CANUSBoard
         bool receivedParameterSet();
 
         //Write ParameterSet
-        int writeParamset(bool bWriteToEEPROM);
-        bool writeParamsetCompleted();
+        int writeParamset(int iPart, bool bWriteToEEPROM, unsigned char ucMode, unsigned char ucInterval, unsigned char ucSensorsActive1To8,
+                          unsigned char ucSensorsActive9To16, unsigned char ucWarnDist[], unsigned char ucAlarmDist[]);
+
+        bool confirmedParamsetPartX(int iPart);
 
         //Set Channel Active
         void setChannelActive(bool *ChannelActive);
@@ -107,9 +109,9 @@ class CANUSBoard
             CMD_SET_CHANNEL_ACTIVE = 1,
             CMD_GET_DATA_1TO8 = 2,
             CMD_GET_DATA_9TO16 = 3,
-            CMD_WRITE_PARASET = 4,
-            CMD_WRITE_PARASET_TO_EEPROM = 5,
-            CMD_READ_PARASET = 6,
+            CMD_WRITE_PARAMSET = 4,
+            CMD_WRITE_PARAMSET_TO_EEPROM = 5,
+            CMD_READ_PARAMSET = 6,
             CMD_GET_ANALOGIN = 7,
             CMD_SET_DEBUG_PARA = 8,
             CMD_GET_DEBUG_PARA = 9,
@@ -123,10 +125,24 @@ class CANUSBoard
             RESP_GET_DATA_1TO8_PART_2 = 3,
             RESP_GET_DATA_9TO16_PART_1 = 4,
             RESP_GET_DATA_9TO16_PART_2 = 5,
-            RESP_READ_PARASET = 6,
+            RESP_READ_PARAMSET = 6,
             RESP_GET_ANALOGIN = 7,
-            RESP_WRITE_PARASET = 8,
-            RESP_WRITE_PARASET_TO_EEPROM = 9
+            RESP_WRITE_PARAMSET = 8,
+            RESP_WRITE_PARAMSET_TO_EEPROM = 9
+        };
+
+        struct USBoardParameterSet
+        {
+            unsigned char ucBaudRate;
+            unsigned char ucCANAddr[4];
+            unsigned char ucCANExtended;
+            unsigned char ucTransmissionMode;
+            unsigned char ucTransmissionInterval;
+            unsigned char ucSensorsActive1To8;
+            unsigned char ucSensorsActive9To16;
+            unsigned char ucWarnDist[16];
+            unsigned char ucAlarmDist[16];
+            unsigned char ucSerialNumber[3];
         };
 
         enum USBoardCANIDs
@@ -146,9 +162,11 @@ class CANUSBoard
 
 
         //CAN-Message Handling Flags
-        bool m_bReceivedParameterSetPart[8];
+        bool m_bReceivedParameterSetPart[9];
         bool m_bReceiveParameterSetCompleted;
+        bool m_bWroteParameterSetPart[9];
         bool m_bWriteParameterSetCompleted;
+        int m_iCurrentParamSetPart;
         bool m_bReceivedData1To8;
         bool m_bReceivedData1To8Msg1;
         bool m_bReceivedData1To8Msg2;
@@ -157,9 +175,12 @@ class CANUSBoard
         bool m_bReceivedData9To16Msg2;
         bool m_bReceivedAnalogInputData;
 
+        USBoardParameterSet m_ParameterSet;
+
 
         //Private CAN msg handling functions
         int HandleReadParameterSetResponse(can_msgs::Frame msg);
+        int HandleWriteParameterSetResponse(can_msgs::Frame msg);
         int HandleReadSensorData1To8(can_msgs::Frame msg);
         int HandleReadSensorData9To16(can_msgs::Frame msg);
 

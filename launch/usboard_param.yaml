@@ -12,12 +12,22 @@
 
 #If true: use CAN-Interface
 #If false: use RS232-Interface
+#Parameter "comPort" is only used for RS232
 useCAN: true
 comPort: /dev/ttyUSB0
 
 #Mode: 0 = Request
 #      1 = Automatic
 mode: 1
+
+#Transmission interval: 0 = 2 Hz
+#                       1 = 1 Hz
+#                       2 = 0.5 Hz
+#                       3 = 5 Hz
+#only used in automatic mode!
+interval: 3
+
+#Timeout to print warning
 timeout: 1.0 #[s]
 
 #
@@ -26,37 +36,71 @@ log: false
 ##########################
 #        sensors         #
 ##########################
-min_range: 0.5 #[m]
-max_range: 1.5 #[m]
-sensor1_active: true
+
+min_range: 0.2 #[m]
+max_range: 1.2 #[m]
+
+sensor1_active: false
 sensor1_frame: "range_1_link"
+sensor1_warn_dist: 90  #[cm]
+sensor1_alarm_dist: 50 #[cm]
 sensor2_active: true
 sensor2_frame: "range_2_link"
+sensor2_warn_dist: 90
+sensor2_alarm_dist: 50
 sensor3_active: true
 sensor3_frame: "range_3_link"
+sensor3_warn_dist: 90
+sensor3_alarm_dist: 50
 sensor4_active: true
 sensor4_frame: "range_4_link"
+sensor4_warn_dist: 90
+sensor4_alarm_dist: 50
 sensor5_active: true
 sensor5_frame: "range_5_link"
+sensor5_warn_dist: 90
+sensor5_alarm_dist: 50
 sensor6_active: true
 sensor6_frame: "range_6_link"
+sensor6_warn_dist: 90
+sensor6_alarm_dist: 50
 sensor7_active: true
 sensor7_frame: "range_7_link"
+sensor7_warn_dist: 90
+sensor7_alarm_dist: 50
 sensor8_active: true
 sensor8_frame: "range_8_link"
+sensor8_warn_dist: 90
+sensor8_alarm_dist: 50
 sensor9_active: true
 sensor9_frame: "range_9_link"
+sensor9_warn_dist: 90
+sensor9_alarm_dist: 50
 sensor10_active: true
 sensor10_frame: "range_10_link"
+sensor10_warn_dist: 90
+sensor10_alarm_dist: 50
 sensor11_active: true
 sensor11_frame: "range_11_link"
+sensor11_warn_dist: 90
+sensor11_alarm_dist: 50
 sensor12_active: true
 sensor12_frame: "range_12_link"
+sensor12_warn_dist: 90
+sensor12_alarm_dist: 50
 sensor13_active: true
 sensor13_frame: "range_13_link"
+sensor13_warn_dist: 90
+sensor13_alarm_dist: 50
 sensor14_active: true
 sensor14_frame: "range_14_link"
+sensor14_warn_dist: 90
+sensor14_alarm_dist: 50
 sensor15_active: true
 sensor15_frame: "range_15_link"
-sensor16_active: true
+sensor15_warn_dist: 90
+sensor15_alarm_dist: 50
+sensor16_active: false
 sensor16_frame: "range_16_link"
+sensor16_warn_dist: 90
+sensor16_alarm_dist: 50

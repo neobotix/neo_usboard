@@ -111,7 +111,7 @@ int SerUSBoard::eval_RXBuffer()
 
     if( !m_bComInit ) return 0;
 
-	int errorFlag = NO_ERROR;
+    int errorFlag = NO_ERROR;
     static int siNoMsgCnt = 0;
 
     int iNumByteRec = NUM_BYTE_REC;

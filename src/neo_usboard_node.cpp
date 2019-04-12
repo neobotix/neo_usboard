@@ -45,40 +45,26 @@ int main(int argc, char** argv)
     // initialize ROS
     ros::init(argc, argv, "neo_usboard_node");
     neo_usboard_node node;
+
     if(node.init() != 0) return 1;
-    double dRequestRate = 5.0; //node.getRequestRate(); [Hz]
+
+    //wait 5 sec after init for all topics to be ready!
+    sleep(5);
+
     ros::Duration rdTimeOutDuration(1.0); //[s]
-    ros::Duration rdRequestData(1.0/dRequestRate);
     ros::Time rtNextTimeReqData;
     ros::Time rtTimeOut; // = ros::Time::now();
     ros::Rate r(30.0); //Frequency Thread Cycling [Hz]
 
-    int iMode = 0;          // 0 = Request Mode
-                            // 1 = Automatic Mode
-
-    int iCurrentState = 2;  // 0 = Read ParameterSet
+    int iCurrentState = 0;  // 0 = Read ParameterSet
                             // 1 = Write ParameterSet
                             // 2 = Publish Data (Request Mode)
                             // 3 = Publish Data (Automatic Mode)
 
-    bool bLostConnection = false;
     bool bRequestedParameterSet = false;
     bool bRequestedSensorData = false;
-
-    //get device parameter
-
-
-    if(iMode == 1)
-    {
-        ROS_INFO("USBoard: Automatic Mode");
-        iCurrentState = 3;
-    }
-    else
-    {
-        ROS_INFO("USBoard: Request Mode");
-        iCurrentState = 2;
-    }
-
+    int iWriteParamSetPartX = 0;
+    bool bWaitForConfirmParamSetPartX = false;
 
     while(node.n.ok())
     {
@@ -87,6 +73,7 @@ int main(int argc, char** argv)
             if(!bRequestedParameterSet)
             {
                 //request current parameter set
+                ROS_INFO("USBoard: requesting parameter set");
                 bool ret = false;
                 ret = node.requestParameterSet();
                 bRequestedParameterSet = true;
@@ -95,12 +82,61 @@ int main(int argc, char** argv)
             {
                 //Wait until complete ParameterSet was received
 		//if done go to state 1
+                if(node.receivedParameterSet())
+                {
+                    iCurrentState = 1;
+                    ROS_INFO("USBoard: parameter set received");
+                }
+                else
+                {
+                    //Wait
+                    ROS_INFO("USBoard: waiting for parameter Set");
+                }
             }
         }
 	else if(iCurrentState == 1)
 	{
-		//write param set to can or serial
-	
+
+            if(!bWaitForConfirmParamSetPartX)
+            {
+                ROS_INFO("USBoard: writing parameter set part %d/9", iWriteParamSetPartX+1);
+                node.writeParameterSetPartX(iWriteParamSetPartX);
+                bWaitForConfirmParamSetPartX = true;
+            }
+            else
+            {
+                //wait for confirmation
+                if(node.confirmedParameterSetPartX(iWriteParamSetPartX))
+                {
+                    ROS_INFO("USBoard: confirmed part %d/9", iWriteParamSetPartX+1);
+                    bWaitForConfirmParamSetPartX = false;
+
+                    if(iWriteParamSetPartX == 8)
+                    {
+                        iWriteParamSetPartX = 0;
+
+                        //write param set to can or serial
+                        if(node.getMode() == 1)
+                        {
+                            ROS_INFO("USBoard: Automatic Mode");
+                            iCurrentState = 3;
+                        }
+                        else
+                        {
+                            ROS_INFO("USBoard: Request Mode");
+                            iCurrentState = 2;
+                        }
+                    }
+                    else
+                    {
+                        iWriteParamSetPartX++;
+                    }
+                }
+                else
+                {
+                     //ROS_INFO("USBoard: waiting for Paramset confirmation");
+                }
+            }
 	}
         else if(iCurrentState == 2)
         {
@@ -125,19 +161,13 @@ int main(int argc, char** argv)
                     //ROS_INFO("Data published");
                     node.publishUSBoardData();
                     bRequestedSensorData = false;
-                    if(bLostConnection)
-                    {
-                        //ROS_INFO("USBoard: Communication established again!");
-                        bLostConnection = false;
-                    }
                 }
                 else
                 {
                     //Wait and check for timeout
                     if(ros::Time::now() > rtTimeOut)
                     {
-                        ROS_ERROR("USBoard: Timeout: no messages reveived!");
-                        bLostConnection = true;
+                        ROS_ERROR("USBoard: Timeout: no answer reveived!");
                         bRequestedSensorData = false;
                     }
                 }
